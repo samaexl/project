@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPU Food • สมัครสมาชิก</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body class="auth-page">
+  <main class="login-layout">
+    <section class="login-brand">
+      <div>
+        <span class="brand-mark lg">SPU</span>
+        <h1>สมัครครั้งเดียว<br>สั่งได้ทุกร้าน</h1>
+        <p class="tagline">ใช้รหัสนักศึกษาสมัครสมาชิก แล้วสั่งอาหารจากทุกร้านในโรงอาหารได้ทันที</p>
+        <ul class="features">
+          <li><b>ใช้เวลาไม่ถึงนาที</b><small>กรอกแค่ชื่อ รหัสนักศึกษา และรหัสผ่าน</small></li>
+          <li><b>ประวัติคิวอยู่ในบัญชีเดียว</b><small>ดูออเดอร์ทั้งหมดของคุณได้ในหน้าคิวของฉัน</small></li>
+          <li><b>ไม่ต้องจ่ายเงินล่วงหน้า</b><small>ชำระที่ร้านตอนรับอาหาร</small></li>
+        </ul>
+      </div>
+      <p class="brand-foot">SPU Food Ordering · ชำระเงินที่ร้าน</p>
+    </section>
+
+    <section class="login-panel">
+      <div class="content auth-card">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">SPU</span>
+          <span class="brand-text"><b>SPU Food</b><small>ระบบสั่งอาหารออนไลน์</small></span>
+        </a>
+        <h2>สมัครสมาชิกนักศึกษา</h2>
+        <p class="muted">กรอกข้อมูลด้านล่างเพื่อสร้างบัญชี</p>
+        <form id="register-form" class="form-stack" novalidate>
+          <div class="field">
+            <label for="reg-name">ชื่อ-นามสกุล</label>
+            <input id="reg-name" type="text" autocomplete="name" placeholder="เช่น สมชาย ใจดี" maxlength="60">
+            <small class="field-error"></small>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="reg-student">รหัสนักศึกษา</label>
+              <input id="reg-student" type="text" inputmode="numeric" maxlength="8" placeholder="8 หลัก" autocomplete="username">
+              <small class="field-error"></small>
+            </div>
+            <div class="field">
+              <label for="reg-phone">เบอร์โทร <span class="optional">(ไม่บังคับ)</span></label>
+              <input id="reg-phone" type="tel" inputmode="numeric" maxlength="10" placeholder="08xxxxxxxx" autocomplete="tel">
+              <small class="field-error"></small>
+            </div>
+          </div>
+          <div class="field">
+            <label for="reg-pass">รหัสผ่าน</label>
+            <div class="pass-wrap">
+              <input id="reg-pass" type="password" autocomplete="new-password" placeholder="อย่างน้อย 6 ตัวอักษร">
+              <button type="button" class="pass-toggle" data-toggle-pass="reg-pass">แสดง</button>
+            </div>
+            <small class="field-error"></small>
+          </div>
+          <div class="field">
+            <label for="reg-pass2">ยืนยันรหัสผ่าน</label>
+            <input id="reg-pass2" type="password" autocomplete="new-password" placeholder="กรอกรหัสผ่านอีกครั้ง">
+            <small class="field-error"></small>
+          </div>
+          <button type="submit" class="btn-submit">สมัครสมาชิก</button>
+        </form>
+        <p class="auth-switch">มีบัญชีแล้ว? <a href="index.html">เข้าสู่ระบบ</a></p>
+        <div class="shop-links">
+          <span>เป็นเจ้าของร้าน?</span>
+          <a href="admin.html#register">สมัครร้านค้าใหม่</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/register.js"></script>
+</body>
+</html>

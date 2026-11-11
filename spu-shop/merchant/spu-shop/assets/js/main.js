@@ -1,0 +1,367 @@
+let foodData = [
+    {
+        id: 1,
+        name: 'ชั้น 1',
+        stores: [
+            {
+                id: 1,
+                name: 'ร้านอาหารตามสั่ง',
+                image: "https://placehold.co/400x240?text=Shop+1",
+                menus: [
+                    {
+                        name: 'ข้าวกะเพราหมูสับ',
+                        price: 45,
+                        image: "https://placehold.co/400x240?text=Food+1"
+                    },
+                    {
+                        name: 'ข้าวผัดหมู',
+                        price: 45,
+                        image: "https://placehold.co/400x240?text=Food+2"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: 'ร้านก๋วยเตี๋ยว',
+                image: "https://placehold.co/400x240?text=Shop+2",
+                menus: [
+                    {
+                        name: 'ก๋วยเตี๋ยวหมู',
+                        price: 40,
+                        image: "https://placehold.co/400x240?text=Food+3"
+                    },
+                    {
+                        name: 'ก๋วยเตี๋ยวต้มยำ',
+                        price: 45,
+                        image: "https://placehold.co/400x240?text=Food+4"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 2,
+        name: 'ชั้น 2',
+        stores: [
+            {
+                id: 3,
+                name: 'ร้านข้าวมันไก่',
+                image: "https://placehold.co/400x240?text=Shop+3",
+                menus: [
+                    {
+                        name: 'ข้าวมันไก่ต้ม',
+                        price: 45,
+                        image: "https://placehold.co/400x240?text=Food+5"
+                    },
+                    {
+                        name: 'ข้าวมันไก่ทอด',
+                        price: 50,
+                        image: "https://placehold.co/400x240?text=Food+6"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                name: 'ร้านน้ำ',
+                image: "https://placehold.co/400x240?text=Shop+4",
+                menus: [
+                    {
+                        name: 'ชาไทย',
+                        price: 25,
+                        image: "https://placehold.co/400x240?text=Food+7"
+                    },
+                    {
+                        name: 'โกโก้เย็น',
+                        price: 30,
+                        image: "https://placehold.co/400x240?text=Food+8"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 3,
+        name: 'ชั้น 3',
+        stores: [
+            {
+                id: 5,
+                name: 'ร้านอาหารอีสาน',
+                image: "https://placehold.co/400x240?text=Shop+5",
+                menus: [
+                    {
+                        name: 'ส้มตำไทย',
+                        price: 40,
+                        image: "https://placehold.co/400x240?text=Food+9"
+                    },
+                    {
+                        name: 'ข้าวเหนียวไก่ย่าง',
+                        price: 55,
+                        image: "https://placehold.co/400x240?text=Food+10"
+                    }
+                ]
+            },
+            {
+                id: 6,
+                name: 'ร้านข้าวหมูทอด',
+                image: "https://placehold.co/400x240?text=Shop+6",
+                menus: [
+                    {
+                        name: 'ข้าวหมูทอด',
+                        price: 45,
+                        image: "https://placehold.co/400x240?text=Food+11"
+                    },
+                    {
+                        name: 'ข้าวหมูกระเทียม',
+                        price: 45,
+                        image: "https://placehold.co/400x240?text=Food+12"
+                    }
+                ]
+            }
+        ]
+    }
+];
+
+
+/* ==========================================================
+   ส่วนที่ใช้ร่วมกันระหว่าง "หน้าลูกค้า" และ "หน้าร้านค้า (merchant)"
+   ข้อมูลทั้งหมดเก็บใน localStorage (เป็นระบบทดสอบ ไม่มีเซิร์ฟเวอร์)
+
+   food_data    : เมนูที่ร้านแก้ไขแล้ว (ถ้าไม่มีจะใช้ foodData ด้านบน)
+   food_stores  : ตั้งค่าแต่ละร้าน { รหัสร้าน, PIN, เปิด/ปิด, ตัวอักษรคิว, เลขคิวล่าสุด }
+   food_orders  : ออเดอร์ทั้งหมด (1 ออเดอร์ = 1 ร้าน)
+========================================================== */
+
+let defaultFoodData = JSON.parse(JSON.stringify(foodData));
+
+function loadFoodData() {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem('food_data')); } catch (e) { saved = null; }
+    foodData = Array.isArray(saved) ? saved : JSON.parse(JSON.stringify(defaultFoodData));
+    // ให้ทุกเมนูมี id และสถานะพร้อมขาย
+    foodData.forEach(function (floor) {
+        floor.stores.forEach(function (store) {
+            store.menus.forEach(function (menu, i) {
+                if (menu.id == null) menu.id = store.id * 100 + i + 1;
+                if (menu.available == null) menu.available = true;
+            });
+        });
+    });
+}
+
+function saveFoodData() {
+    localStorage.setItem('food_data', JSON.stringify(foodData));
+}
+
+loadFoodData();
+
+function allStores() {
+    let list = [];
+    foodData.forEach(function (floor) {
+        floor.stores.forEach(function (store) {
+            store.floorId = floor.id;
+            store.floorName = floor.name;
+            list.push(store);
+        });
+    });
+    return list;
+}
+
+function findStore(id) {
+    return allStores().find(function (s) { return s.id === Number(id); }) || null;
+}
+
+function findStoreByName(name) {
+    return allStores().find(function (s) { return s.name === name; }) || null;
+}
+
+/* ---------- ตั้งค่าร้าน + รหัสของแต่ละร้าน ---------- */
+const QUEUE_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+function getStoreConfigs() {
+    let configs = {};
+    try { configs = JSON.parse(localStorage.getItem('food_stores')) || {}; } catch (e) { configs = {}; }
+    allStores().forEach(function (store) {
+        if (!configs[store.id]) {
+            configs[store.id] = {
+                code: 'SHOP' + String(store.id).padStart(2, '0'),   // รหัสร้านสำหรับเข้าสู่ระบบ
+                pin: '1234',                                       // PIN เริ่มต้น
+                open: true,
+                prefix: QUEUE_LETTERS[(store.id - 1) % 26],         // ตัวอักษรนำหน้าคิว เช่น A001
+                queueDate: '',
+                queueNumber: 0,
+                sound: true
+            };
+        }
+    });
+    return configs;
+}
+
+function saveStoreConfigs(configs) {
+    localStorage.setItem('food_stores', JSON.stringify(configs));
+}
+
+function dateKey(ts) {
+    let d = new Date(ts);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+// ออกเลขคิวถัดไปของร้าน (เริ่ม 001 ใหม่ทุกวัน)
+function nextQueue(storeId) {
+    let configs = getStoreConfigs();
+    let cfg = configs[storeId];
+    let today = dateKey(Date.now());
+    if (cfg.queueDate !== today) {
+        cfg.queueDate = today;
+        cfg.queueNumber = 0;
+    }
+    cfg.queueNumber++;
+    saveStoreConfigs(configs);
+    return cfg.prefix + String(cfg.queueNumber).padStart(3, '0');
+}
+
+/* ---------- ออเดอร์ ---------- */
+const STATUS_TEXT = {
+    new: 'รอร้านรับออเดอร์',
+    cooking: 'กำลังทำอาหาร',
+    ready: 'อาหารพร้อมแล้ว มารับได้เลย',
+    done: 'รับอาหารแล้ว',
+    cancelled: 'ยกเลิกแล้ว'
+};
+
+function makeId() {
+    return 'o' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function loadOrders() {
+    let raw = [];
+    try { raw = JSON.parse(localStorage.getItem('food_orders')) || []; } catch (e) { raw = []; }
+    let out = [];
+    let changed = false;
+    raw.forEach(function (order, idx) {
+        if (order.storeId != null) { out.push(order); return; }
+        // ออเดอร์รูปแบบเก่า (หลายร้านในออเดอร์เดียว) -> แยกเป็นออเดอร์ละร้าน
+        changed = true;
+        let groups = {};
+        (order.items || []).forEach(function (item) {
+            let s = findStoreByName(item.store);
+            let sid = s ? s.id : 0;
+            (groups[sid] = groups[sid] || []).push(item);
+        });
+        Object.keys(groups).forEach(function (sid) {
+            let s = findStore(sid);
+            let items = groups[sid];
+            out.push({
+                id: 'old' + idx + '-' + sid,
+                queue: order.queue,
+                storeId: Number(sid),
+                store: s ? s.name : 'ไม่ทราบร้าน',
+                floor: s ? s.floorId : '',
+                student: order.student,
+                name: order.name || '',
+                items: items,
+                total: items.reduce(function (sum, it) { return sum + it.price * it.quantity; }, 0),
+                status: 'new',
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            });
+        });
+    });
+    if (changed) saveOrders(out);
+    return out;
+}
+
+function saveOrders(orders) {
+    localStorage.setItem('food_orders', JSON.stringify(orders));
+}
+
+/* ---------- เครื่องมือแสดงผล ---------- */
+function esc(value) {
+    if (value == null) return '';
+    return String(value)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function timeText(ts) {
+    return new Date(ts).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+}
+
+function agoText(ts) {
+    let min = Math.floor((Date.now() - ts) / 60000);
+    if (min < 1) return 'เมื่อสักครู่';
+    if (min < 60) return min + ' นาทีที่แล้ว';
+    let hr = Math.floor(min / 60);
+    if (hr < 24) return hr + ' ชม. ที่แล้ว';
+    return Math.floor(hr / 24) + ' วันที่แล้ว';
+}
+
+function updateAgoLabels() {
+    document.querySelectorAll('[data-ago]').forEach(function (el) {
+        el.textContent = agoText(Number(el.dataset.ago));
+    });
+}
+
+/* ---------- แจ้งเตือน: ข้อความเด้ง + เสียง + แจ้งเตือนของเบราว์เซอร์ ---------- */
+let audioCtx = null;
+
+function unlockAudio() {
+    try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) { audioCtx = null; }
+}
+document.addEventListener('click', unlockAudio);
+document.addEventListener('keydown', unlockAudio);
+
+function beep(times) {
+    try {
+        unlockAudio();
+        if (!audioCtx) return;
+        times = times || 2;
+        for (let i = 0; i < times; i++) {
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = i % 2 ? 1175 : 880;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            let t = audioCtx.currentTime + i * 0.28;
+            gain.gain.setValueAtTime(0.0001, t);
+            gain.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+            osc.start(t);
+            osc.stop(t + 0.26);
+        }
+    } catch (e) { /* เบราว์เซอร์ไม่รองรับเสียง */ }
+}
+
+function showToast(html, type) {
+    let box = document.getElementById('toast-box');
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'toast-box';
+        document.body.appendChild(box);
+    }
+    let toast = document.createElement('div');
+    toast.className = 'toast ' + (type || '');
+    toast.innerHTML = html + '<span class="toast-close">×</span>';
+    toast.onclick = function (e) {
+        if (e.target.tagName !== 'A') toast.remove();
+    };
+    box.appendChild(toast);
+    setTimeout(function () { toast.remove(); }, 8000);
+}
+
+function desktopNotify(title, body) {
+    try {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, { body: body });
+        }
+    } catch (e) { /* ไม่รองรับ */ }
+}
+
+function logout() {
+    localStorage.removeItem('food_user');
+    localStorage.removeItem('food_cart');
+    location.href = 'index.html';
+}

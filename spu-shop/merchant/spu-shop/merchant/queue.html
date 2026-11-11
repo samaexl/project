@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คิว</title>
+    <link rel="stylesheet" href="../assets/css/app.css">
+    <link rel="stylesheet" href="merchant.css">
+</head>
+<body>
+    <div class="content m-wide" id="queue-page">
+        <div class="m-title-row">
+            <h2>ระบบคิว</h2>
+            <div class="btn-row">
+                <button class="btn btn-ghost" onclick="createTestOrder()">+ ออเดอร์ทดสอบ</button>
+                <button class="btn btn-ghost" onclick="toggleTv()" id="tv-btn">🖥 จอเรียกคิว (เต็มจอ)</button>
+            </div>
+        </div>
+        <div class="btn-row big-actions">
+            <button class="btn btn-main" onclick="acceptNext()">① รับคิวถัดไป</button>
+            <button class="btn btn-main" onclick="callNext()">② เรียกคิวถัดไป (ทำเสร็จ)</button>
+            <button class="btn btn-main" onclick="finishOldest()">③ ปิดคิวที่ลูกค้ารับแล้ว</button>
+        </div>
+        <p id="queue-info"></p>
+        <div class="board">
+            <div class="board-col col-new"><h3>รอรับออเดอร์ <span id="n-new"></span></h3><div id="col-new"></div></div>
+            <div class="board-col col-cooking"><h3>กำลังทำ <span id="n-cooking"></span></h3><div id="col-cooking"></div></div>
+            <div class="board-col col-ready"><h3>📢 เรียกรับอาหาร <span id="n-ready"></span></h3><div id="col-ready"></div></div>
+        </div>
+    </div>
+
+    <!-- จอแสดงคิวสำหรับหันให้ลูกค้าดู -->
+    <div id="tv" class="tv" hidden>
+        <div class="tv-head"><b id="tv-store"></b><span>คลิกเพื่อออกจากโหมดจอ</span></div>
+        <div class="tv-body">
+            <div><h2>📢 เชิญรับอาหาร</h2><div id="tv-ready" class="tv-nums"></div></div>
+            <div><h2>กำลังทำ</h2><div id="tv-cooking" class="tv-nums small"></div></div>
+        </div>
+    </div>
+    <script src="../assets/js/main.js"></script>
+    <script src="merchant.js"></script>
+    <script>
+        function active(st) {
+            return myOrders().filter(function (o) { return o.status === st; })
+                .sort(function (a, b) { return a.createdAt - b.createdAt; });
+        }
+
+        function ticket(o) {
+            let qty = o.items.reduce(function (s, it) { return s + it.quantity; }, 0);
+            let h = '<div class="ticket">';
+            h += '<div class="t-num">' + esc(o.queue) + '</div>';
+            h += '<div class="t-info">' + esc(o.name || o.student) + ' · ' + qty + ' รายการ · <span data-ago="' + o.createdAt + '"></span>';
+            h += '<div class="t-items">' + o.items.map(function (it) {
+                return it.quantity + '× ' + esc(it.name) + (it.note ? ' <i>(' + esc(it.note) + ')</i>' : '');
+            }).join('<br>') + '</div></div>';
+            h += '<div class="t-actions">' + orderButtons(o) + '</div></div>';
+            return h;
+        }
+
+        function render() {
+            ['new', 'cooking', 'ready'].forEach(function (st) {
+                let list = active(st);
+                document.getElementById('n-' + st).textContent = '(' + list.length + ')';
+                document.getElementById('col-' + st).innerHTML = list.length ? list.map(ticket).join('') : '<div class="empty">—</div>';
+            });
+            let cfg = myConfig();
+            let waiting = active('new').length + active('cooking').length;
+            document.getElementById('queue-info').innerHTML =
+                'คิววันนี้ออกไปแล้ว <b>' + (cfg.queueDate === dateKey(Date.now()) ? cfg.queueNumber : 0) + '</b> คิว · ' +
+                'คิวถัดไปจะเป็น <b>' + esc(cfg.prefix) + String((cfg.queueDate === dateKey(Date.now()) ? cfg.queueNumber : 0) + 1).padStart(3, '0') + '</b> · ' +
+                'ค้างอยู่ <b>' + waiting + '</b> คิว';
+
+            document.getElementById('tv-store').textContent = myStore.name + ' · ' + myStore.floorName;
+            document.getElementById('tv-ready').innerHTML = active('ready').map(function (o) { return '<span>' + esc(o.queue) + '</span>'; }).join('') || '<em>—</em>';
+            document.getElementById('tv-cooking').innerHTML = active('cooking').concat(active('new')).map(function (o) { return '<span>' + esc(o.queue) + '</span>'; }).join('') || '<em>—</em>';
+        }
+
+        function first(st) { return active(st)[0]; }
+        function acceptNext() { let o = first('new'); o ? orderAction('accept', o.id) : showToast('ไม่มีคิวรอรับ'); }
+        function callNext() { let o = first('cooking'); o ? orderAction('ready', o.id) : showToast('ไม่มีคิวที่กำลังทำ'); }
+        function finishOldest() { let o = first('ready'); o ? orderAction('done', o.id) : showToast('ไม่มีคิวที่รอลูกค้ารับ'); }
+
+        function toggleTv() {
+            let tv = document.getElementById('tv');
+            tv.hidden = !tv.hidden;
+            if (!tv.hidden && tv.requestFullscreen) tv.requestFullscreen().catch(function () {});
+            if (tv.hidden && document.fullscreenElement) document.exitFullscreen();
+        }
+        document.getElementById('tv').onclick = toggleTv;
+
+        startMerchantPage('queue', render);
+    </script>
+</body>
+</html>

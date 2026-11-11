@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ภาพรวม</title>
+    <link rel="stylesheet" href="../assets/css/app.css">
+    <link rel="stylesheet" href="merchant.css">
+</head>
+<body>
+    <div class="content m-wide">
+        <div class="m-title-row">
+            <h2>ภาพรวมวันนี้</h2>
+            <button class="btn btn-ghost" onclick="createTestOrder()">+ สร้างออเดอร์ทดสอบ</button>
+        </div>
+        <div class="stat-grid" id="stats"></div>
+
+        <div class="m-title-row">
+            <h3 class="m-sub">ต้องจัดการตอนนี้</h3>
+            <a href="orders.html">ดูออเดอร์ทั้งหมด →</a>
+        </div>
+        <div class="order-grid" id="todo"></div>
+
+        <h3 class="m-sub">เมนูขายดีวันนี้</h3>
+        <div id="top-menu"></div>
+    </div>
+    <script src="../assets/js/main.js"></script>
+    <script src="merchant.js"></script>
+    <script>
+        startMerchantPage('dashboard', function () {
+            let orders = myOrders();
+            let today = orders.filter(function (o) { return isToday(o.createdAt); });
+            let count = function (st) { return orders.filter(function (o) { return o.status === st; }).length; };
+            let paid = today.filter(function (o) { return o.status === 'done'; });
+            let revenue = paid.reduce(function (s, o) { return s + o.total; }, 0);
+            let pending = today.filter(function (o) { return ['new', 'cooking', 'ready'].indexOf(o.status) !== -1; })
+                .reduce(function (s, o) { return s + o.total; }, 0);
+            let prep = today.filter(function (o) { return o.acceptedAt && o.readyAt; })
+                .map(function (o) { return (o.readyAt - o.acceptedAt) / 60000; });
+            let avgPrep = prep.length ? (prep.reduce(function (a, b) { return a + b; }, 0) / prep.length).toFixed(1) : '-';
+
+            let stat = function (label, value, cls, href) {
+                return '<a class="stat ' + (cls || '') + '" href="' + href + '"><span>' + label + '</span><b>' + value + '</b></a>';
+            };
+            document.getElementById('stats').innerHTML =
+                stat('ออเดอร์ใหม่ รอรับ', count('new'), 'stat-new', 'orders.html?status=new') +
+                stat('กำลังทำ', count('cooking'), 'stat-cooking', 'orders.html?status=cooking') +
+                stat('พร้อมรับ รอลูกค้า', count('ready'), 'stat-ready', 'orders.html?status=ready') +
+                stat('ออเดอร์วันนี้', today.length, '', 'orders.html?status=all') +
+                stat('ยอดขายวันนี้ (รับเงินแล้ว)', revenue.toLocaleString() + ' ฿', 'stat-money', 'sajes.html') +
+                stat('ยอดที่ยังไม่ได้รับเงิน', pending.toLocaleString() + ' ฿', '', 'orders.html') +
+                stat('เวลาทำเฉลี่ย', avgPrep + ' นาที', '', 'queue.html');
+
+            let todo = orders.filter(function (o) { return ['new', 'cooking', 'ready'].indexOf(o.status) !== -1; });
+            let order = { new: 0, cooking: 1, ready: 2 };
+            todo.sort(function (a, b) { return order[a.status] - order[b.status] || a.createdAt - b.createdAt; });
+            document.getElementById('todo').innerHTML = todo.length
+                ? todo.slice(0, 9).map(orderCard).join('')
+                : '<div class="empty">ไม่มีออเดอร์ค้าง 🎉 ลองกด “สร้างออเดอร์ทดสอบ” หรือสั่งจากหน้าลูกค้า</div>';
+
+            let tally = {};
+            today.filter(function (o) { return o.status !== 'cancelled'; }).forEach(function (o) {
+                o.items.forEach(function (it) { tally[it.name] = (tally[it.name] || 0) + it.quantity; });
+            });
+            let top = Object.keys(tally).sort(function (a, b) { return tally[b] - tally[a]; }).slice(0, 5);
+            let max = top.length ? tally[top[0]] : 1;
+            document.getElementById('top-menu').innerHTML = top.length
+                ? top.map(function (n) {
+                    return '<div class="bar-row"><span>' + esc(n) + '</span><div class="bar"><i style="width:' + (tally[n] / max * 100) + '%"></i></div><b>' + tally[n] + '</b></div>';
+                }).join('')
+                : '<div class="empty">ยังไม่มียอดขายวันนี้</div>';
+        });
+    </script>
+</body>
+</html>

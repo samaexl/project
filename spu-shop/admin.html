@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPU Merchant • ระบบจัดการร้านค้า</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+  <div id="login-screen" class="login-wrap">
+    <div class="auth-shell">
+      <div class="auth-top">
+        <span class="brand-mark">SPU</span>
+        <div><b>SPU Merchant</b><small>ระบบจัดการร้านค้า</small></div>
+      </div>
+
+      <!-- เข้าสู่ระบบ -->
+      <form id="login-form" class="login-card" novalidate>
+        <h1>เข้าสู่ระบบร้านค้า</h1>
+        <p class="muted">ใช้รหัสร้านค้าและรหัสผ่านเพื่อจัดการออเดอร์และคิวของร้าน</p>
+        <label for="store-code">รหัสร้านค้า</label>
+        <input id="store-code" autocomplete="username" placeholder="เช่น SHOP01" required>
+        <label for="store-pin">รหัสผ่านร้านค้า</label>
+        <input id="store-pin" type="password" autocomplete="current-password" placeholder="รหัสผ่าน" required>
+        <button class="btn primary full" type="submit">เข้าสู่ระบบ</button>
+        <p id="login-error" class="error" role="alert"></p>
+        <p class="auth-switch">ยังไม่มีร้านในระบบ? <a href="#register" data-auth="register">สมัครร้านค้าใหม่</a></p>
+        <div class="demo-hint">ร้านตัวอย่าง: <b>SHOP01</b> – <b>SHOP06</b> รหัสผ่าน <b>1234</b></div>
+      </form>
+
+      <!-- สมัครร้านค้า -->
+      <form id="register-form" class="login-card wide hidden" novalidate>
+        <h1>สมัครร้านค้าใหม่</h1>
+        <p class="muted">เปิดร้านในระบบสั่งอาหาร SPU Food หลังสมัครจะได้รหัสร้านสำหรับเข้าสู่ระบบ</p>
+        <div class="reg-grid">
+          <div class="field full">
+            <label for="reg-shop-name">ชื่อร้าน</label>
+            <input id="reg-shop-name" maxlength="40" placeholder="เช่น ร้านข้าวแกงป้าศรี">
+            <small class="field-error"></small>
+          </div>
+          <div class="field">
+            <label for="reg-shop-floor">อยู่ชั้น</label>
+            <select id="reg-shop-floor"></select>
+            <small class="field-error"></small>
+          </div>
+          <div class="field">
+            <label for="reg-owner">ชื่อเจ้าของร้าน</label>
+            <input id="reg-owner" maxlength="60" autocomplete="name" placeholder="ชื่อ-นามสกุล">
+            <small class="field-error"></small>
+          </div>
+          <div class="field full">
+            <label for="reg-shop-phone">เบอร์โทรร้าน</label>
+            <input id="reg-shop-phone" type="tel" inputmode="numeric" maxlength="10" placeholder="08xxxxxxxx">
+            <small class="field-error"></small>
+          </div>
+          <div class="field">
+            <label for="reg-shop-pin">ตั้งรหัสผ่าน</label>
+            <input id="reg-shop-pin" type="password" autocomplete="new-password" placeholder="อย่างน้อย 4 ตัว">
+            <small class="field-error"></small>
+          </div>
+          <div class="field">
+            <label for="reg-shop-pin2">ยืนยันรหัสผ่าน</label>
+            <input id="reg-shop-pin2" type="password" autocomplete="new-password" placeholder="กรอกอีกครั้ง">
+            <small class="field-error"></small>
+          </div>
+        </div>
+        <button class="btn primary full" type="submit">สมัครร้านค้า</button>
+        <p class="auth-switch">มีร้านในระบบแล้ว? <a href="#login" data-auth="login">เข้าสู่ระบบ</a></p>
+      </form>
+
+      <!-- สมัครสำเร็จ -->
+      <div id="register-done" class="login-card hidden">
+        <div class="done-mark">✓</div>
+        <h1>สมัครร้านค้าเรียบร้อย</h1>
+        <p class="muted"><b id="done-shop-name"></b> พร้อมใช้งานแล้ว จดรหัสร้านไว้สำหรับเข้าสู่ระบบ</p>
+        <div class="code-box"><small>รหัสร้านของคุณ</small><strong id="done-shop-code"></strong></div>
+        <p class="muted small-note">ขั้นตอนถัดไป: เข้าสู่ระบบแล้วไปที่ "เมนูและสินค้า" เพื่อเพิ่มเมนูแรกของร้าน</p>
+        <button id="done-login" class="btn primary full" type="button">เข้าสู่ระบบร้านนี้</button>
+      </div>
+
+      <p class="auth-back"><a href="index.html">← กลับไปหน้าสั่งอาหารของนักศึกษา</a></p>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="side-brand"><span class="brand-mark small">SPU</span><div><b>Merchant</b><small>จัดการร้านค้า</small></div></div>
+      <div class="store-chip"><span class="online-dot"></span><div><b id="side-store-name">ร้านค้า</b><small id="side-store-code">รหัสร้าน</small></div></div>
+      <nav>
+        <button class="nav-item active" data-view="overview"><span>▦</span> ภาพรวม</button>
+        <button class="nav-item" data-view="orders"><span>▤</span> ออเดอร์ <i id="nav-order-count">0</i></button>
+        <button class="nav-item" data-view="queue"><span>☷</span> จัดการคิว</button>
+        <button class="nav-item" data-view="menu"><span>☰</span> เมนูและสินค้า</button>
+        <button class="nav-item" data-view="settings"><span>⚙</span> ตั้งค่าร้าน</button>
+      </nav>
+      <div class="sidebar-bottom"><small>SPU FOOD ORDERING</small><button id="logout-btn" class="logout">ออกจากระบบ ↗</button></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><p class="eyebrow">MERCHANT DASHBOARD</p><h1 id="page-title">ภาพรวมร้านค้า</h1></div>
+        <div class="top-actions"><span class="live-pill"><span class="online-dot"></span> กำลังติดตามออเดอร์</span><button id="sound-toggle" class="icon-btn" title="เปิด/ปิดเสียงแจ้งเตือน">🔔</button><div class="avatar" id="avatar">S</div></div>
+      </header>
+
+      <section id="view-overview" class="view">
+        <div class="welcome-row"><div><h2>สวัสดี, <span id="welcome-store">ร้านค้า</span> 👋</h2><p class="muted">สรุปสถานะร้านค้าและรายการที่ต้องจัดการ</p></div><span class="date-label" id="today-label"></span></div>
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-top"><span>ออเดอร์ใหม่</span><span class="stat-icon orange">＋</span></div><strong id="stat-new">0</strong><small>รอรับออเดอร์</small></article>
+          <article class="stat-card"><div class="stat-top"><span>กำลังทำ</span><span class="stat-icon blue">◷</span></div><strong id="stat-cooking">0</strong><small>กำลังเตรียมอาหาร</small></article>
+          <article class="stat-card"><div class="stat-top"><span>รอรับอาหาร</span><span class="stat-icon purple">♧</span></div><strong id="stat-ready">0</strong><small>ทำเสร็จแล้ว</small></article>
+          <article class="stat-card"><div class="stat-top"><span>ยอดขายวันนี้</span><span class="stat-icon green">฿</span></div><strong id="stat-sales">฿0</strong><small>จากออเดอร์ที่รับแล้ว</small></article>
+        </div>
+        <div class="content-grid">
+          <article class="panel"><div class="panel-head"><div><h3>ออเดอร์ล่าสุด</h3><p class="muted">รายการสั่งซื้อของร้านนี้</p></div><button class="text-btn" data-goto="orders">ดูทั้งหมด →</button></div><div id="recent-orders" class="order-list"></div></article>
+          <article class="panel queue-panel"><div class="panel-head"><div><h3>คิวที่กำลังดำเนินการ</h3><p class="muted">ลำดับคิวของร้าน</p></div><button class="text-btn" data-goto="queue">จัดการคิว →</button></div><div id="queue-summary"></div></article>
+        </div>
+      </section>
+
+      <section id="view-orders" class="view hidden">
+        <div class="toolbar"><div><h2>รายการออเดอร์</h2><p class="muted">รับออเดอร์และอัปเดตสถานะการทำอาหาร</p></div><div class="filters"><input id="order-search" placeholder="ค้นหาเลขออเดอร์ / ชื่อลูกค้า"><select id="status-filter"><option value="all">ทุกสถานะ</option><option value="new">ออเดอร์ใหม่</option><option value="cooking">กำลังทำ</option><option value="ready">พร้อมรับ</option><option value="done">สำเร็จ</option><option value="cancelled">ยกเลิก</option></select></div></div>
+        <div id="orders-container" class="panel table-panel"></div>
+      </section>
+
+      <section id="view-queue" class="view hidden">
+        <div class="toolbar"><div><h2>จัดการคิว</h2><p class="muted">เรียกคิวและแจ้งลูกค้าว่าอาหารพร้อมรับ</p></div><button id="next-queue" class="btn primary">เรียกคิวถัดไป →</button></div>
+        <div class="queue-stats"><div class="panel"><small>คิวที่กำลังทำ</small><strong id="queue-cooking-count">0</strong></div><div class="panel"><small>คิวรอรับ</small><strong id="queue-ready-count">0</strong></div><div class="panel"><small>คิวเสร็จวันนี้</small><strong id="queue-done-count">0</strong></div></div>
+        <div id="queue-container" class="panel"></div>
+      </section>
+
+      <section id="view-menu" class="view hidden">
+        <div class="toolbar"><div><h2>เมนูและสินค้า</h2><p class="muted">จัดการรายการขายและสถานะสินค้าของร้าน</p></div><button id="add-menu" class="btn primary">＋ เพิ่มเมนู</button></div>
+        <div id="menu-container" class="panel"></div>
+        <form id="menu-form" class="panel menu-form hidden">
+          <h3 id="menu-form-title">เพิ่มเมนู</h3><input type="hidden" id="menu-id">
+          <div class="form-grid"><label>ชื่อเมนู<input id="menu-name" required placeholder="เช่น ข้าวกะเพรา"></label><label>ราคา (บาท)<input id="menu-price" type="number" min="0" step="1" required></label></div>
+          <div class="image-field">
+            <img id="menu-image-preview" class="image-preview" alt="รูปเมนู">
+            <div class="image-controls">
+              <b>รูปเมนู</b>
+              <label class="btn ghost file-btn">📷 เลือกรูปจากเครื่อง<input id="menu-image-file" type="file" accept="image/*" hidden></label>
+              <input id="menu-image-url" type="url" placeholder="หรือวางลิงก์รูป https://...">
+              <button type="button" id="menu-image-clear" class="text-btn">ลบรูป</button>
+              <small class="muted">ระบบจะย่อรูปให้อัตโนมัติ (ไม่เกิน 640px)</small>
+            </div>
+          </div>
+          <div class="form-actions"><button type="button" id="cancel-menu" class="btn ghost">ยกเลิก</button><button class="btn primary" type="submit">บันทึกเมนู</button></div>
+        </form>
+      </section>
+
+      <section id="view-settings" class="view hidden">
+        <div class="toolbar"><div><h2>ตั้งค่าร้าน</h2><p class="muted">ข้อมูลและการรับออเดอร์ของร้านค้า</p></div></div>
+        <form id="settings-form" class="panel settings-form">
+          <div class="form-grid"><label>ชื่อร้าน<input id="setting-name" required></label><label>รหัสร้านค้า<input id="setting-code" disabled></label><label>เบอร์ติดต่อ<input id="setting-phone" placeholder="เบอร์โทรศัพท์"></label><label>สถานะร้าน<select id="setting-open"><option value="open">เปิดรับออเดอร์</option><option value="closed">ปิดร้านชั่วคราว</option></select></label></div>
+          <div class="image-field">
+            <img id="store-image-preview" class="image-preview" alt="รูปร้าน">
+            <div class="image-controls">
+              <b>รูปหน้าร้าน</b>
+              <label class="btn ghost file-btn">📷 เลือกรูปจากเครื่อง<input id="store-image-file" type="file" accept="image/*" hidden></label>
+              <input id="store-image-url" type="url" placeholder="หรือวางลิงก์รูป https://...">
+              <button type="button" id="store-image-clear" class="text-btn">ลบรูป</button>
+            </div>
+          </div>
+          <button class="btn primary" type="submit">บันทึกการตั้งค่า</button>
+          <p class="muted small-note">รหัสร้านค้าใช้แยกข้อมูลออเดอร์ของแต่ละร้าน ไม่สามารถเปลี่ยนจากหน้านี้ได้</p>
+        </form>
+        <div class="panel notice"><b>การแจ้งเตือน</b><p>หน้านี้จะแจ้งเตือนเมื่อมีออเดอร์ใหม่ในระบบเดียวกัน หากต้องการแจ้งเตือนข้ามอุปกรณ์/ข้ามเบราว์เซอร์ ต้องเชื่อมฐานข้อมูลกลางและระบบแจ้งเตือน เช่น Firebase</p></div>
+      </section>
+      <footer>© SPU Food Ordering · Merchant Center <span id="connection-label">โหมดทดลองในเครื่อง</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <audio id="notify-audio" preload="auto"><source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=" type="audio/wav"></audio>
+  <script src="assets/js/main.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>

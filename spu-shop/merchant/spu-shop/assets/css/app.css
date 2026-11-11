@@ -1,0 +1,477 @@
+
+/* =====================================
+   SPU FOOD ORDERING
+   Professional Pink Theme
+===================================== */
+
+/* 1. กำหนดสีหลัก */
+:root {
+    --pink: #e879a8;
+    --pink-dark: #c94f83;
+    --pink-deep: #a83c6c;
+    --pink-soft: #fff0f6;
+    --pink-pale: #fff8fb;
+    --accent: #f4a6c4;
+    --text: #49343e;
+    --muted: #8b7881;
+    --white: #ffffff;
+    --page: #fff7fa;
+    --border: #f2dce6;
+    --shadow: 0 12px 32px rgba(171,75,119,0.10);
+}
+
+/* 2. ตั้งค่าพื้นฐาน */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    background: var(--page);
+    font-family: Tahoma, sans-serif;
+    line-height: 1.65;
+}
+
+/* 3. ส่วนหัวเว็บไซต์ */
+.header {
+    padding: 30px 20px;
+    color: white;
+    text-align: center;
+    background: linear-gradient(
+        120deg,
+        var(--pink-dark),
+        var(--pink),
+        #f29cbd
+    );
+    box-shadow: 0 7px 22px rgba(201,79,131,0.18);
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+/* 4. เมนูนำทาง */
+.nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(120,60,85,0.05);
+}
+
+.nav a,
+.nav button {
+    padding: 9px 17px;
+    border: none;
+    border-radius: 30px;
+    color: var(--pink-deep);
+    background: transparent;
+    font-size: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.nav a:hover {
+    background: var(--pink-soft);
+}
+
+.nav button {
+    color: white;
+    background: var(--pink-dark);
+}
+
+.nav button:hover {
+    background: var(--pink-deep);
+}
+
+/* 5. กล่องเนื้อหาหลัก */
+.content {
+    width: 90%;
+    max-width: 1080px;
+    min-height: 320px;
+    margin: 35px auto;
+    padding: 35px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    animation: appear 0.4s ease;
+}
+
+/* Animation */
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 6. หัวข้อ */
+.content h2 {
+    margin-top: 0;
+    margin-bottom: 22px;
+    color: var(--pink-deep);
+    font-size: 27px;
+}
+
+.content h2::after {
+    content: "";
+    display: block;
+    width: 55px;
+    height: 4px;
+    margin-top: 8px;
+    border-radius: 10px;
+    background: var(--accent);
+}
+
+.content p {
+    color: var(--muted);
+}
+
+/* 7. ปุ่มทั่วไป */
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+.content button,
+.content input[type="submit"] {
+    padding: 11px 22px;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    background: linear-gradient(
+        120deg,
+        var(--pink-dark),
+        var(--pink)
+    );
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 5px 13px rgba(201,79,131,0.17);
+    transition: 0.3s;
+}
+
+.content button:hover,
+.content input[type="submit"]:hover {
+    background: var(--pink-deep);
+    transform: translateY(-2px);
+}
+
+/* 8. หน้าเข้าสู่ระบบ */
+#login-form {
+    width: 100%;
+    max-width: 520px;
+    margin: 15px auto;
+    padding: 30px;
+    background: var(--pink-pale);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+}
+
+#login-form label {
+    display: block;
+    margin: 15px 0 7px;
+    color: var(--text);
+    font-weight: bold;
+}
+
+#login-form input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #e9cbd9;
+    border-radius: 11px;
+    outline: none;
+    background: white;
+}
+
+#login-form input:focus {
+    border-color: var(--pink);
+    box-shadow: 0 0 0 4px rgba(232,121,168,0.13);
+}
+
+#login-form button {
+    width: 100%;
+    margin-top: 15px;
+}
+
+/* 9. หน้าเลือกชั้น */
+#floor-list {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(210px, 1fr)
+    );
+    gap: 16px;
+    margin: 22px 0;
+    padding: 0;
+    list-style: none;
+}
+
+#floor-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 90px;
+    padding: 20px;
+    background: var(--pink-pale);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+#floor-list li:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+    transform: translateY(-3px);
+}
+
+#floor-list li a {
+    color: var(--pink-deep);
+    text-decoration: none;
+}
+
+/* 10. ร้านอาหาร เมนู ตะกร้า และคิว */
+#store-list,
+#menu-list,
+#cart-list,
+#order-list {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(225px, 1fr)
+    );
+    gap: 17px;
+    margin-top: 20px;
+}
+
+/* การ์ดแต่ละรายการ */
+#store-list > *,
+#menu-list > *,
+#cart-list > *,
+#order-list > * {
+    min-width: 0;
+    padding: 20px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    box-shadow: 0 5px 17px rgba(120,60,85,0.05);
+    transition: 0.3s;
+}
+
+/* เอฟเฟกต์เมื่อชี้การ์ด */
+#store-list > *:hover,
+#menu-list > *:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+    transform: translateY(-3px);
+}
+
+/* หัวข้อในการ์ด */
+#store-list h3,
+#menu-list h3,
+#cart-list h3,
+#order-list h3 {
+    margin-top: 0;
+    color: var(--pink-deep);
+    font-size: 19px;
+}
+
+/* ข้อความในการ์ด */
+#store-list p,
+#menu-list p,
+#cart-list p,
+#order-list p {
+    color: var(--muted);
+}
+
+/* 11. ยอดรวมในตะกร้า */
+#total {
+    color: var(--pink-deep);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#order-button {
+    width: 100%;
+    max-width: 360px;
+    margin-top: 15px;
+}
+
+/* 12. ข้อความเมื่อไม่มีสินค้า */
+#cart-list:empty::before {
+    content: "ยังไม่มีสินค้าในตะกร้า";
+    display: block;
+    grid-column: 1 / -1;
+    padding: 30px;
+    color: var(--muted);
+    text-align: center;
+    background: var(--pink-pale);
+    border: 1px dashed #e8b9ce;
+    border-radius: 15px;
+}
+
+#order-list:empty::before {
+    content: "ยังไม่มีคำสั่งซื้อ";
+    display: block;
+    grid-column: 1 / -1;
+    padding: 30px;
+    color: var(--muted);
+    text-align: center;
+    background: var(--pink-pale);
+    border: 1px dashed #e8b9ce;
+    border-radius: 15px;
+}
+
+/* 13. ลิงก์ */
+.content a {
+    color: var(--pink-deep);
+    text-decoration: none;
+}
+
+.content a:hover {
+    text-decoration: underline;
+}
+
+#back-link,
+.content > a[href="floors.html"] {
+    display: inline-block;
+    margin-bottom: 15px;
+    padding: 9px 14px;
+    color: var(--pink-deep);
+    background: var(--pink-soft);
+    border-radius: 10px;
+}
+
+/* 14. การแสดงผลบนโทรศัพท์ */
+@media screen and (max-width: 700px) {
+
+    .header {
+        padding: 24px 15px;
+    }
+
+    .header h1 {
+        font-size: 25px;
+    }
+
+    .nav {
+        position: static;
+        gap: 5px;
+    }
+
+    .nav a,
+    .nav button {
+        padding: 8px 11px;
+        font-size: 13px;
+    }
+
+    .content {
+        width: 95%;
+        margin: 18px auto;
+        padding: 20px 15px;
+        border-radius: 18px;
+    }
+
+    .content h2 {
+        font-size: 23px;
+    }
+
+    #floor-list,
+    #store-list,
+    #menu-list,
+    #cart-list,
+    #order-list {
+        grid-template-columns: 1fr;
+    }
+
+    #order-button {
+        max-width: 100%;
+    }
+}
+
+/* 15. ลด Animation */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* 16. สถานะร้าน/เมนู/คิว (เพิ่มสำหรับระบบร้านค้า) */
+.pill {
+    display: inline-block;
+    padding: 2px 11px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    background: var(--pink-soft);
+    color: var(--pink-deep);
+}
+.pill-open, .pill-ready   { background: #e3f7ea; color: #1f7a43; }
+.pill-closed, .pill-cancelled { background: #fde8e8; color: #b42318; }
+.pill-new     { background: #fff4d6; color: #8a5a00; }
+.pill-cooking { background: #e6f0ff; color: #1d4ed8; }
+.pill-done    { background: #eeeeee; color: #555555; }
+
+.closed-note { color: #b42318 !important; font-weight: bold; }
+.is-closed, .is-soldout { opacity: 0.6; }
+.content button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+#order-list > .q-ready { border: 2px solid #34a853; background: #f3fcf6; }
+
+#store-list img, #menu-list img, #cart-list img, #order-list img {
+    width: 100%;
+    border-radius: 12px;
+}
+
+/* ข้อความแจ้งเตือนเด้ง */
+#toast-box {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: min(380px, calc(100vw - 36px));
+}
+.toast {
+    position: relative;
+    padding: 14px 38px 14px 16px;
+    color: var(--text);
+    background: white;
+    border-left: 6px solid var(--pink-dark);
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(73,52,62,0.22);
+    cursor: pointer;
+    animation: appear 0.3s ease;
+}
+.toast.ok  { border-left-color: #34a853; }
+.toast.bad { border-left-color: #d93025; }
+.toast a   { color: var(--pink-deep); font-weight: bold; }
+.toast-close { position: absolute; top: 6px; right: 12px; color: var(--muted); font-size: 18px; }

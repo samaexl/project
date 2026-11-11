@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPU สั่งอาหาร</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+    <div class="header">
+        <h1>SPU สั่งอาหาร</h1>
+    </div>
+    <div class="nav">
+        <a href="floors.html">เลือกชั้น</a> |
+        <a href="cart.html">ตะกร้า (<span id="cart-count">0</span>)</a> |
+        <a href="queue.html">คิวของฉัน</a> |
+        <button onclick="logout()">ออกจากระบบ</button>
+    </div>
+    <div class="content">
+        <a id="back-link" href="floors.html">กลับไปเลือกร้าน</a>
+        <h2 id="store-name">เมนูอาหาร</h2>
+        <div id="menu-list"></div>
+    </div>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/menu.js"></script>
+</body>
+</html>

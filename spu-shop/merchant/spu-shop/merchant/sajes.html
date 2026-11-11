@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ยอดขาย</title>
+    <link rel="stylesheet" href="../assets/css/app.css">
+    <link rel="stylesheet" href="merchant.css">
+</head>
+<body>
+    <div class="content m-wide">
+        <div class="m-title-row">
+            <h2>ยอดขาย</h2>
+            <div class="btn-row">
+                <select id="range">
+                    <option value="1">วันนี้</option>
+                    <option value="7">7 วันล่าสุด</option>
+                    <option value="30">30 วันล่าสุด</option>
+                    <option value="0">ทั้งหมด</option>
+                </select>
+                <button class="btn btn-ghost" onclick="exportCsv()">⬇ ดาวน์โหลด CSV</button>
+            </div>
+        </div>
+        <p>นับยอดขายจากออเดอร์ที่ “ลูกค้ารับแล้ว” (ชำระเงินที่ร้าน)</p>
+        <div class="stat-grid" id="stats"></div>
+
+        <div class="two-col">
+            <div>
+                <h3 class="m-sub">เมนูขายดี</h3>
+                <div class="table-wrap"><table class="m-table" id="menu-sales">
+                    <thead><tr><th>เมนู</th><th>จำนวน</th><th>ยอดเงิน</th></tr></thead><tbody></tbody>
+                </table></div>
+            </div>
+            <div>
+                <h3 class="m-sub">ยอดขายรายชั่วโมง</h3>
+                <div id="hours"></div>
+            </div>
+        </div>
+
+        <h3 class="m-sub">รายการออเดอร์ที่ขายแล้ว</h3>
+        <div class="table-wrap"><table class="m-table" id="order-table">
+            <thead><tr><th>วันที่</th><th>เวลา</th><th>คิว</th><th>ลูกค้า</th><th>รายการ</th><th>ยอด</th></tr></thead><tbody></tbody>
+        </table></div>
+    </div>
+    <script src="../assets/js/main.js"></script>
+    <script src="merchant.js"></script>
+    <script>
+        function inRange(o) {
+            let days = Number(document.getElementById('range').value);
+            if (days === 0) return true;
+            let start = new Date(); start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() - (days - 1));
+            return o.createdAt >= start.getTime();
+        }
+
+        function sold() {
+            return myOrders().filter(function (o) { return o.status === 'done' && inRange(o); })
+                .sort(function (a, b) { return b.createdAt - a.createdAt; });
+        }
+
+        function render() {
+            let all = myOrders().filter(inRange);
+            let done = sold();
+            let revenue = done.reduce(function (s, o) { return s + o.total; }, 0);
+            let cancelled = all.filter(function (o) { return o.status === 'cancelled'; });
+            let items = done.reduce(function (s, o) { return s + o.items.reduce(function (a, it) { return a + it.quantity; }, 0); }, 0);
+            let stat = function (label, value, cls) { return '<div class="stat ' + (cls || '') + '"><span>' + label + '</span><b>' + value + '</b></div>'; };
+            document.getElementById('stats').innerHTML =
+                stat('ยอดขาย', revenue.toLocaleString() + ' ฿', 'stat-money') +
+                stat('ออเดอร์ที่ขายแล้ว', done.length) +
+                stat('จำนวนจานที่ขาย', items) +
+                stat('เฉลี่ยต่อออเดอร์', (done.length ? Math.round(revenue / done.length) : 0) + ' ฿') +
+                stat('ยกเลิก', cancelled.length + ' (' + cancelled.reduce(function (s, o) { return s + o.total; }, 0) + ' ฿)', 'stat-new');
+
+            let menus = {};
+            done.forEach(function (o) {
+                o.items.forEach(function (it) {
+                    let m = menus[it.name] = menus[it.name] || { qty: 0, money: 0 };
+                    m.qty += it.quantity; m.money += it.price * it.quantity;
+                });
+            });
+            let names = Object.keys(menus).sort(function (a, b) { return menus[b].money - menus[a].money; });
+            document.querySelector('#menu-sales tbody').innerHTML = names.length
+                ? names.map(function (n) { return '<tr><td>' + esc(n) + '</td><td>' + menus[n].qty + '</td><td>' + menus[n].money.toLocaleString() + '</td></tr>'; }).join('')
+                : '<tr><td colspan="3" class="empty">ยังไม่มียอดขาย</td></tr>';
+
+            let hours = {};
+            done.forEach(function (o) { let h = new Date(o.createdAt).getHours(); hours[h] = (hours[h] || 0) + o.total; });
+            let keys = Object.keys(hours).map(Number).sort(function (a, b) { return a - b; });
+            let max = Math.max.apply(null, keys.map(function (k) { return hours[k]; }).concat([1]));
+            document.getElementById('hours').innerHTML = keys.length
+                ? keys.map(function (k) {
+                    return '<div class="bar-row"><span>' + String(k).padStart(2, '0') + ':00</span><div class="bar"><i style="width:' + (hours[k] / max * 100) + '%"></i></div><b>' + hours[k].toLocaleString() + '</b></div>';
+                }).join('')
+                : '<div class="empty">ยังไม่มีข้อมูล</div>';
+
+            document.querySelector('#order-table tbody').innerHTML = done.length
+                ? done.slice(0, 200).map(function (o) {
+                    return '<tr><td>' + new Date(o.createdAt).toLocaleDateString('th-TH') + '</td><td>' + timeText(o.createdAt) + '</td><td><b>' + esc(o.queue) +
+                        '</b></td><td>' + esc(o.name || o.student) + '</td><td>' + o.items.map(function (it) { return it.quantity + '× ' + esc(it.name); }).join(', ') +
+                        '</td><td>' + o.total + '</td></tr>';
+                }).join('')
+                : '<tr><td colspan="6" class="empty">ยังไม่มีออเดอร์ที่ขายแล้ว</td></tr>';
+        }
+
+        function exportCsv() {
+            let rows = [['วันที่', 'เวลา', 'คิว', 'ชื่อ', 'รหัสนักศึกษา', 'เมนู', 'จำนวน', 'ราคา', 'รวม']];
+            sold().forEach(function (o) {
+                o.items.forEach(function (it) {
+                    rows.push([dateKey(o.createdAt), timeText(o.createdAt), o.queue, o.name, o.student, it.name, it.quantity, it.price, it.price * it.quantity]);
+                });
+            });
+            let csv = '﻿' + rows.map(function (r) {
+                return r.map(function (c) { return '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"'; }).join(',');
+            }).join('\n');
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+            a.download = 'sales-' + myConfig().code + '-' + dateKey(Date.now()) + '.csv';
+            a.click();
+        }
+
+        document.getElementById('range').onchange = render;
+        startMerchantPage('sales', render);
+    </script>
+</body>
+</html>

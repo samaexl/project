@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPU Food • คิวของฉัน</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="bar">
+            <a class="brand" href="floors.html">
+                <span class="brand-mark">SPU</span>
+                <span class="brand-text"><b>SPU Food</b><small>ระบบสั่งอาหารออนไลน์</small></span>
+            </a>
+            <nav class="nav">
+                <a href="floors.html">เลือกชั้น</a>
+                <a href="cart.html">ตะกร้า <span id="cart-count" class="count">0</span></a>
+                <a href="queue.html" class="active">คิวของฉัน</a>
+                <button onclick="logout()">ออกจากระบบ</button>
+            </nav>
+        </div>
+    </header>
+    <ol class="steps">
+        <li class="done"><span>✓</span>เลือกชั้น</li>
+        <li class="done"><span>✓</span>เลือกร้าน</li>
+        <li class="done"><span>✓</span>เลือกเมนู</li>
+        <li class="done"><span>✓</span>ยืนยันสั่ง</li>
+        <li class="now"><span>5</span>รับคิว</li>
+    </ol>
+    <main class="content">
+        <div class="page-head">
+            <h2>คิวของฉัน</h2>
+            <p>สถานะอัปเดตอัตโนมัติ · ยกเลิกได้เฉพาะออเดอร์ที่ร้านยังไม่รับ</p>
+        </div>
+        <div id="order-list"></div>
+        <p class="page-actions"><a class="back-link" href="floors.html">สั่งอาหารเพิ่ม →</a></p>
+    </main>
+    <footer class="site-footer"><b>SPU Food Ordering</b> · ชำระเงินและรับอาหารที่ร้าน</footer>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/queue.js"></script>
+</body>
+</html>

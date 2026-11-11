@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบร้านค้า | SPU สั่งอาหาร</title>
+    <link rel="stylesheet" href="../assets/css/app.css">
+    <link rel="stylesheet" href="merchant.css">
+</head>
+<body>
+    <div class="header m-header">
+        <h1>SPU หลังร้าน</h1>
+        <div class="m-store">สำหรับพ่อค้าแม่ค้า</div>
+    </div>
+    <div class="content">
+        <h2>เข้าสู่ระบบร้านค้า</h2>
+        <form id="login-form" onsubmit="merchantLogin(event, this)">
+            <label>รหัสร้าน</label>
+            <input name="code" type="text" placeholder="เช่น SHOP01" autocomplete="username" required>
+            <label>PIN</label>
+            <input name="pin" type="password" inputmode="numeric" maxlength="6" placeholder="••••" autocomplete="current-password" required>
+            <p id="login-error" class="closed-note"></p>
+            <button type="submit">เข้าสู่ระบบ</button>
+        </form>
+
+        <h3 class="m-sub">บัญชีทดสอบ (คลิกเพื่อกรอกอัตโนมัติ)</h3>
+        <p>แต่ละร้านมีรหัสของตัวเอง เห็นเฉพาะออเดอร์ของร้านตัวเอง · PIN เริ่มต้น <b>1234</b> (เปลี่ยนได้ในหน้าตั้งค่า)</p>
+        <div class="table-wrap">
+            <table class="m-table" id="account-table">
+                <thead><tr><th>รหัสร้าน</th><th>ร้าน</th><th>ชั้น</th><th>ตัวอักษรคิว</th><th></th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <p>💡 ทดสอบ: เปิดหน้าลูกค้า (<a href="../index.html" target="_blank">index.html</a>) ในอีกแท็บ แล้วสั่งอาหาร — หน้าร้านจะแจ้งเตือนทันที
+            · เปิดหลายแท็บแล้วล็อกอินคนละร้านได้</p>
+    </div>
+    <script src="../assets/js/main.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>

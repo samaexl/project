@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตั้งค่าร้าน</title>
+    <link rel="stylesheet" href="../assets/css/app.css">
+    <link rel="stylesheet" href="merchant.css">
+</head>
+<body>
+    <div class="content m-wide">
+        <h2>ตั้งค่าร้าน</h2>
+        <div class="settings-grid">
+            <section class="card">
+                <h3>สถานะร้าน</h3>
+                <p id="open-text"></p>
+                <button class="btn btn-main" onclick="toggleOpen()" id="open-btn"></button>
+            </section>
+
+            <section class="card">
+                <h3>การแจ้งเตือน</h3>
+                <label class="check"><input type="checkbox" id="sound" onchange="updateMyConfig({ sound: this.checked })"> เสียงแจ้งเตือนออเดอร์ใหม่</label>
+                <p><button class="btn btn-ghost" onclick="beep(3)">🔊 ทดสอบเสียง</button>
+                   <button class="btn btn-ghost" onclick="askDesktop()" id="desk-btn">เปิดแจ้งเตือนบนเดสก์ท็อป</button></p>
+                <p id="desk-text"></p>
+            </section>
+
+            <section class="card">
+                <h3>ระบบคิว</h3>
+                <form class="m-form" onsubmit="savePrefix(event, this)">
+                    <label>ตัวอักษรนำหน้าคิว (1–2 ตัว)<input name="prefix" maxlength="2" pattern="[A-Za-z]{1,2}" required></label>
+                    <button class="btn btn-main">บันทึก</button>
+                </form>
+                <p id="queue-text"></p>
+                <button class="btn btn-ghost" onclick="resetQueue()">เริ่มนับคิวใหม่ที่ 001</button>
+            </section>
+
+            <section class="card">
+                <h3>เปลี่ยน PIN</h3>
+                <form class="m-form" onsubmit="changePin(event, this)">
+                    <label>PIN เดิม<input name="old" type="password" inputmode="numeric" required></label>
+                    <label>PIN ใหม่ (4–6 หลัก)<input name="pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" required></label>
+                    <button class="btn btn-main">เปลี่ยน PIN</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h3>ข้อมูลร้าน</h3>
+                <p id="store-info"></p>
+            </section>
+
+            <section class="card danger">
+                <h3>ข้อมูลทดสอบ</h3>
+                <p>ใช้ระหว่างทดลองระบบ</p>
+                <p><button class="btn btn-ghost" onclick="createTestOrder(); showToast('สร้างออเดอร์ทดสอบแล้ว', 'ok')">+ สร้างออเดอร์ทดสอบ</button></p>
+                <p><button class="btn btn-ghost" onclick="clearMyOrders()">ลบออเดอร์ทั้งหมดของร้านนี้</button></p>
+                <p><button class="btn btn-ghost" onclick="resetMenus()">คืนค่าเมนูทุกร้านเป็นค่าเริ่มต้น</button></p>
+            </section>
+        </div>
+    </div>
+    <script src="../assets/js/main.js"></script>
+    <script src="merchant.js"></script>
+    <script>
+        function render(changed) {
+            let cfg = myConfig();
+            document.getElementById('open-text').textContent = cfg.open
+                ? 'ร้านเปิดรับออเดอร์อยู่' : 'ร้านปิดอยู่ ลูกค้าดูเมนูได้แต่สั่งไม่ได้';
+            document.getElementById('open-btn').textContent = cfg.open ? 'ปิดร้านชั่วคราว' : 'เปิดรับออเดอร์';
+            document.getElementById('sound').checked = cfg.sound !== false;
+            let form = document.querySelector('[name=prefix]');
+            if (changed.first || document.activeElement !== form) form.value = cfg.prefix;
+            let today = cfg.queueDate === dateKey(Date.now()) ? cfg.queueNumber : 0;
+            document.getElementById('queue-text').innerHTML = 'วันนี้ออกคิวไปแล้ว <b>' + today + '</b> คิว · คิวถัดไป <b>' +
+                esc(cfg.prefix) + String(today + 1).padStart(3, '0') + '</b> · เลขคิวเริ่ม 001 ใหม่ทุกวันอัตโนมัติ';
+            document.getElementById('store-info').innerHTML = 'ร้าน: <b>' + esc(myStore.name) + '</b><br>' + esc(myStore.floorName) +
+                '<br>รหัสร้าน: <b>' + esc(cfg.code) + '</b><br>เมนู ' + myStore.menus.length + ' รายการ';
+            let p = ('Notification' in window) ? Notification.permission : 'unsupported';
+            document.getElementById('desk-text').textContent =
+                p === 'granted' ? 'เปิดแจ้งเตือนเดสก์ท็อปแล้ว' :
+                p === 'denied' ? 'เบราว์เซอร์บล็อกการแจ้งเตือนไว้ (เปิดได้ในการตั้งค่าเว็บไซต์)' :
+                p === 'unsupported' ? 'เบราว์เซอร์นี้ไม่รองรับ' : 'ยังไม่ได้เปิด';
+            document.getElementById('desk-btn').style.display = p === 'default' ? '' : 'none';
+        }
+
+        function askDesktop() {
+            Notification.requestPermission().then(function () { render({}); });
+        }
+
+        function savePrefix(event, form) {
+            event.preventDefault();
+            let prefix = form.elements.prefix.value.trim().toUpperCase();
+            let configs = getStoreConfigs();
+            let taken = Object.keys(configs).some(function (id) { return Number(id) !== myStore.id && configs[id].prefix === prefix; });
+            if (taken) { alert('ตัวอักษรนี้มีร้านอื่นใช้แล้ว'); return; }
+            updateMyConfig({ prefix: prefix });
+            showToast('บันทึกตัวอักษรคิวแล้ว', 'ok');
+        }
+
+        function resetQueue() {
+            if (!confirm('เริ่มนับเลขคิวใหม่ที่ 001?')) return;
+            updateMyConfig({ queueNumber: 0, queueDate: dateKey(Date.now()) });
+        }
+
+        function changePin(event, form) {
+            event.preventDefault();
+            if (form.elements.old.value !== myConfig().pin) { alert('PIN เดิมไม่ถูกต้อง'); return; }
+            updateMyConfig({ pin: form.elements.pin.value });
+            form.reset();
+            showToast('เปลี่ยน PIN แล้ว', 'ok');
+        }
+
+        function clearMyOrders() {
+            if (!confirm('ลบออเดอร์ทั้งหมดของร้าน ' + myStore.name + '? (ย้อนกลับไม่ได้)')) return;
+            saveOrders(loadOrders().filter(function (o) { return o.storeId !== myStore.id; }));
+            refreshAll();
+            showToast('ลบออเดอร์แล้ว');
+        }
+
+        function resetMenus() {
+            if (!confirm('คืนค่าเมนูของทุกร้านเป็นค่าเริ่มต้น?')) return;
+            localStorage.removeItem('food_data');
+            refreshAll();
+            showToast('คืนค่าเมนูแล้ว');
+        }
+
+        startMerchantPage('settings', render);
+    </script>
+</body>
+</html>

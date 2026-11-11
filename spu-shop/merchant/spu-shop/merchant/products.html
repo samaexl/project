@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เมนู/สินค้า</title>
+    <link rel="stylesheet" href="../assets/css/app.css">
+    <link rel="stylesheet" href="merchant.css">
+</head>
+<body>
+    <div class="content m-wide">
+        <h2>เมนู / สินค้า</h2>
+        <p>กด “หมด” เพื่อปิดเมนูชั่วคราว ลูกค้าจะเห็นว่าหมดและสั่งไม่ได้ · แก้ชื่อ/ราคาแล้วกดบันทึก</p>
+        <div class="table-wrap">
+            <table class="m-table" id="menu-table">
+                <thead><tr><th>รูป</th><th>ชื่อเมนู</th><th>ราคา (บาท)</th><th>ขายวันนี้</th><th>สถานะ</th><th></th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <h3 class="m-sub">เพิ่มเมนูใหม่</h3>
+        <form class="m-form inline" onsubmit="addMenu(event, this)">
+            <label>ชื่อเมนู<input name="name" required maxlength="60" placeholder="เช่น ข้าวไข่เจียว"></label>
+            <label>ราคา<input name="price" type="number" min="0" step="1" required placeholder="40"></label>
+            <label class="grow">ลิงก์รูป (ไม่ใส่ก็ได้)<input name="image" type="url" placeholder="https://..."></label>
+            <button class="btn btn-main" type="submit">+ เพิ่มเมนู</button>
+        </form>
+    </div>
+    <script src="../assets/js/main.js"></script>
+    <script src="merchant.js"></script>
+    <script>
+        function soldToday() {
+            let tally = {};
+            myOrders().filter(function (o) { return isToday(o.createdAt) && o.status !== 'cancelled'; }).forEach(function (o) {
+                o.items.forEach(function (it) { tally[it.menuId || it.name] = (tally[it.menuId || it.name] || 0) + it.quantity; });
+            });
+            return tally;
+        }
+
+        function render() {
+            let sold = soldToday();
+            let rows = '';
+            myStore.menus.forEach(function (m) {
+                let on = m.available !== false;
+                rows += '<tr class="' + (on ? '' : 'row-off') + '">';
+                rows += '<td>' + (m.image ? '<img class="thumb" src="' + esc(m.image) + '" alt="">' : '<div class="thumb none">ไม่มีรูป</div>') + '</td>';
+                rows += '<td><input id="name-' + m.id + '" value="' + esc(m.name) + '" maxlength="60"></td>';
+                rows += '<td><input id="price-' + m.id + '" type="number" min="0" value="' + m.price + '" class="w-price"></td>';
+                rows += '<td>' + (sold[m.id] || sold[m.name] || 0) + '</td>';
+                rows += '<td><button class="btn ' + (on ? 'btn-on' : 'btn-off') + '" onclick="toggleMenu(' + m.id + ')">' + (on ? 'พร้อมขาย' : 'หมด') + '</button></td>';
+                rows += '<td class="nowrap"><button class="btn btn-main" onclick="saveMenu(' + m.id + ')">บันทึก</button> ';
+                rows += '<button class="btn btn-ghost" onclick="deleteMenu(' + m.id + ')">ลบ</button></td></tr>';
+            });
+            if (!rows) rows = '<tr><td colspan="6" class="empty">ยังไม่มีเมนู</td></tr>';
+            document.querySelector('#menu-table tbody').innerHTML = rows;
+        }
+
+        function findMenu(id) { return myStore.menus.find(function (m) { return m.id === id; }); }
+
+        function toggleMenu(id) {
+            let m = findMenu(id);
+            m.available = m.available === false;
+            saveFoodData();
+            showToast(esc(m.name) + (m.available ? ' พร้อมขายแล้ว' : ' ตั้งเป็น “หมด” แล้ว'), m.available ? 'ok' : 'bad');
+            refreshAll();
+        }
+
+        function saveMenu(id) {
+            let m = findMenu(id);
+            let name = document.getElementById('name-' + id).value.trim();
+            let price = Number(document.getElementById('price-' + id).value);
+            if (!name || !(price >= 0)) { alert('กรุณากรอกชื่อและราคาให้ถูกต้อง'); return; }
+            m.name = name;
+            m.price = Math.round(price);
+            saveFoodData();
+            showToast('บันทึก ' + esc(name) + ' แล้ว', 'ok');
+            refreshAll();
+        }
+
+        function deleteMenu(id) {
+            let m = findMenu(id);
+            if (!confirm('ลบเมนู “' + m.name + '” ?')) return;
+            myStore.menus.splice(myStore.menus.indexOf(m), 1);
+            saveFoodData();
+            refreshAll();
+        }
+
+        function addMenu(event, form) {
+            event.preventDefault();
+            let maxId = 0;
+            allStores().forEach(function (s) { s.menus.forEach(function (m) { if (m.id > maxId) maxId = m.id; }); });
+            myStore.menus.push({
+                id: maxId + 1,
+                name: form.elements.name.value.trim(),
+                price: Math.round(Number(form.elements.price.value)),
+                image: form.elements.image.value.trim(),
+                available: true
+            });
+            saveFoodData();
+            form.reset();
+            showToast('เพิ่มเมนูแล้ว', 'ok');
+            refreshAll();
+        }
+
+        startMerchantPage('products', function (changed) {
+            // ไม่วาดตารางใหม่ระหว่างที่กำลังพิมพ์แก้ไข
+            let typing = document.activeElement && document.activeElement.closest && document.activeElement.closest('#menu-table');
+            if (changed.first || changed.data || (changed.orders && !typing)) render();
+        });
+    </script>
+</body>
+</html>

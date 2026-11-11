@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ออเดอร์</title>
+    <link rel="stylesheet" href="../assets/css/app.css">
+    <link rel="stylesheet" href="merchant.css">
+</head>
+<body>
+    <div class="content m-wide">
+        <div class="m-title-row">
+            <h2>ออเดอร์</h2>
+            <button class="btn btn-ghost" onclick="createTestOrder()">+ สร้างออเดอร์ทดสอบ</button>
+        </div>
+        <div class="tabs" id="tabs"></div>
+        <div class="filter-row">
+            <input id="search" type="search" placeholder="ค้นหา เลขคิว / ชื่อ / รหัสนักศึกษา / เมนู">
+            <select id="range">
+                <option value="today">วันนี้</option>
+                <option value="all">ทั้งหมด</option>
+            </select>
+            <button class="btn btn-main" id="accept-all" onclick="acceptAll()">รับออเดอร์ใหม่ทั้งหมด</button>
+        </div>
+        <div class="order-grid" id="orders"></div>
+    </div>
+    <script src="../assets/js/main.js"></script>
+    <script src="merchant.js"></script>
+    <script>
+        let params = new URLSearchParams(location.search);
+        let currentTab = params.get('status') || 'active';
+        const TABS = [
+            ['active', 'ต้องจัดการ', ['new', 'cooking', 'ready']],
+            ['new', 'ใหม่', ['new']],
+            ['cooking', 'กำลังทำ', ['cooking']],
+            ['ready', 'พร้อมรับ', ['ready']],
+            ['done', 'รับแล้ว', ['done']],
+            ['cancelled', 'ยกเลิก', ['cancelled']],
+            ['all', 'ทั้งหมด', ['new', 'cooking', 'ready', 'done', 'cancelled']]
+        ];
+
+        function filtered(statuses) {
+            let range = document.getElementById('range').value;
+            let q = document.getElementById('search').value.trim().toLowerCase();
+            return myOrders().filter(function (o) {
+                if (statuses.indexOf(o.status) === -1) return false;
+                // ออเดอร์ที่ยังค้างอยู่ แสดงเสมอแม้เป็นของเมื่อวาน
+                if (range === 'today' && !isToday(o.createdAt) && ['new', 'cooking', 'ready'].indexOf(o.status) === -1) return false;
+                if (!q) return true;
+                let hay = [o.queue, o.name, o.student].concat(o.items.map(function (i) { return i.name + ' ' + i.note; })).join(' ').toLowerCase();
+                return hay.indexOf(q) !== -1;
+            });
+        }
+
+        function render() {
+            let tabHtml = '';
+            TABS.forEach(function (t) {
+                let n = filtered(t[2]).length;
+                tabHtml += '<button class="tab' + (t[0] === currentTab ? ' active' : '') + '" onclick="setTab(\'' + t[0] + '\')">' +
+                    t[1] + ' <span>' + n + '</span></button>';
+            });
+            document.getElementById('tabs').innerHTML = tabHtml;
+
+            let tab = TABS.find(function (t) { return t[0] === currentTab; }) || TABS[0];
+            let list = filtered(tab[2]);
+            let finished = currentTab === 'done' || currentTab === 'cancelled' || currentTab === 'all';
+            // คิวที่ยังค้าง: เก่าสุดก่อน (มาก่อนได้ก่อน) · ที่จบแล้ว: ใหม่สุดก่อน
+            list.sort(function (a, b) { return finished ? b.createdAt - a.createdAt : a.createdAt - b.createdAt; });
+            document.getElementById('orders').innerHTML = list.length
+                ? list.map(orderCard).join('')
+                : '<div class="empty">ไม่มีออเดอร์ในหมวดนี้</div>';
+            document.getElementById('accept-all').style.display =
+                myOrders().some(function (o) { return o.status === 'new'; }) ? '' : 'none';
+        }
+
+        function setTab(t) {
+            currentTab = t;
+            history.replaceState(null, '', '?status=' + t);
+            render();
+        }
+
+        function acceptAll() {
+            let orders = loadOrders();
+            let n = 0;
+            orders.forEach(function (o) {
+                if (o.storeId === myStore.id && o.status === 'new') {
+                    o.status = 'cooking'; o.acceptedAt = Date.now(); o.updatedAt = Date.now(); n++;
+                }
+            });
+            if (!n || !confirm('รับออเดอร์ใหม่ทั้งหมด ' + n + ' รายการ?')) return;
+            saveOrders(orders);
+            refreshAll();
+        }
+
+        document.getElementById('search').oninput = render;
+        document.getElementById('range').onchange = render;
+        startMerchantPage('orders', function (changed) {
+            if (changed.orders || changed.first || changed.data) render();
+        });
+    </script>
+</body>
+</html>

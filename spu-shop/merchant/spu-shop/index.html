@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPU สั่งอาหาร</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+    <div class="header">
+        <h1>SPU สั่งอาหาร</h1>
+    </div>
+    <div class="content">
+        <h2>เข้าสู่ระบบ</h2>
+        <form id="login-form" onsubmit="login(event, this)">
+            <label>ชื่อ</label>
+            <input id="name" name="nickname" type="text" required>
+            <label>รหัสนักศึกษา (8 หลัก)</label>
+            <input id="student" name="student" type="text" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" placeholder="69000000" required>
+            <p>
+                <button type="submit">เข้าสู่ระบบ</button>
+            </p>
+        </form>
+        <p style="text-align:center"><a href="merchant/login.html">สำหรับร้านค้า: เข้าสู่ระบบหลังร้าน →</a></p>
+    </div>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/login.js"></script>
+</body>
+</html>

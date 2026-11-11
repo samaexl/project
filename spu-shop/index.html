@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPU Food • เข้าสู่ระบบ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body class="auth-page">
+  <main class="login-layout">
+    <section class="login-brand">
+      <div>
+        <span class="brand-mark lg">SPU</span>
+        <h1>สั่งอาหารล่วงหน้า<br>ไม่ต้องยืนรอหน้าร้าน</h1>
+        <p class="tagline">เลือกร้านจากทุกชั้นในโรงอาหาร สั่งแล้วรับเลขคิว แล้วมารับเมื่ออาหารพร้อม</p>
+        <ul class="features">
+          <li><b>ดูได้ว่าร้านไหนเปิด</b><small>เมนูและราคาตามที่ร้านอัปเดต</small></li>
+          <li><b>รับเลขคิวทันทีหลังสั่ง</b><small>แต่ละร้านออกคิวของตัวเอง</small></li>
+          <li><b>ติดตามสถานะได้ตลอด</b><small>ระบบแจ้งเมื่ออาหารพร้อมรับ</small></li>
+        </ul>
+      </div>
+      <p class="brand-foot">SPU Food Ordering · ชำระเงินที่ร้าน</p>
+    </section>
+
+    <section class="login-panel">
+      <div class="content auth-card">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">SPU</span>
+          <span class="brand-text"><b>SPU Food</b><small>ระบบสั่งอาหารออนไลน์</small></span>
+        </a>
+        <h2>เข้าสู่ระบบ</h2>
+        <p class="muted">สำหรับนักศึกษา ใช้รหัสนักศึกษาและรหัสผ่านที่สมัครไว้</p>
+        <form id="login-form" novalidate>
+          <label for="student">รหัสนักศึกษา</label>
+          <input id="student" name="student" type="text" inputmode="numeric"
+            pattern="[0-9]{8}" maxlength="8" placeholder="8 หลัก เช่น 69000000" autocomplete="username" required>
+          <label for="password">รหัสผ่าน</label>
+          <div class="pass-wrap">
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="รหัสผ่าน" required>
+            <button type="button" class="pass-toggle" data-toggle-pass="password">แสดง</button>
+          </div>
+          <button type="submit" class="btn-submit">เข้าสู่ระบบ</button>
+          <p id="login-error" class="error" role="alert"></p>
+        </form>
+        <p class="auth-switch">ยังไม่มีบัญชี? <a href="register.html">สมัครสมาชิกนักศึกษา</a></p>
+        <div class="shop-links">
+          <span>สำหรับร้านค้า</span>
+          <a href="admin.html">เข้าสู่ระบบร้าน</a>
+          <a href="admin.html#register">สมัครร้านค้าใหม่</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/login.js"></script>
+</body>
+</html>
